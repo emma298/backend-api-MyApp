@@ -1,13 +1,12 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
+const connectDB = require('./config/db'); // Importar conexión a MongoDB
 const userRoutes = require('./routes/user.route');
 const taskRoutes = require('./routes/task.route');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI;
 
 // Middleware
 app.use(cors());
@@ -21,12 +20,11 @@ app.get('/', (req, res) => {
   res.send('Bienvenido a la API de gestión de tareas');
 });
 
-// Conectar a MongoDB
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('✅ Conexión a MongoDB establecida');
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+// 🔹 Conectar a la base de datos y luego iniciar el servidor
+connectDB().then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
     });
-  })
-  .catch((err) => console.error('❌ Error al conectar a MongoDB:', err));
+}).catch((err) => {
+    console.error('❌ No se pudo iniciar el servidor:', err);
+});
